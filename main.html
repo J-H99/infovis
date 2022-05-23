@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Dosis&family=Goldman:wght@700&family=Montserrat+Alternates:ital,wght@1,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;1,200&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="./main.css">
+    <title>Visualization of DFU Dataset</title>
+  </head>
+  <body>
+    <div class="container_header">
+      <div class="header_content">
+        <b>Diabetic Foot Ulcer Dataset (DFU)</b>
+      </div>
+    </div>
+
+    <div class="container_nav">
+      <ul class="container">
+        <li class="link">Dataset</li>
+        <li class="link active">Implementation</li>
+        <li class="link">License</li>
+      </ul>
+    </div>
+
+    <div class="container_main">
+      <div class="container_explanation">
+        <div class="container_explanation_header"><b id="focused">What</b> is DFU Dataset?</div>
+        <div class="container_explanation_contents">
+          This dataset is a collection of foot <u><b>pressure, temperature, and humidity</b></u> data for the patients suffering from diabetes and diabetic foot ulcer.
+          <br>With the approval of IRB at Seoul Boramae Hospital, walking experiments were conducted on patients, and the experiment was conducted with sandals attached smartinsoles manufactured directly by IMTL lab and Hippo T&C corporation.
+          <br><br>The experiment was conducted in about 10 minutes from the normal group, diabetes group, and diabetic foot ulcer patients.
+          <br>There are 10 sensors in total, 8 pressure sensors and 1 temperature and humidity sensor each.
+          <br><br>The dataset has the following format:
+        </div>
+      </div>
+
+      <hr style="margin-top: 2%; margin-bottom: 2%">
+      <div class="container_implementation">
+        <div class="container_implementation_header"><b id="focused">Impelementation</b> using d3.js</div>
+        <div class="container_implementation_contents">
+          Using the D3.js library, visualize the distribution of pressure data and temperature & humidity data<br><br>
+          <form>
+            <label for="csvFile">To analyze : </label>
+            <select id="csvFile" name="csvFile">
+              <option value="1_1" selected>1_1.csv</option>
+              <option value="1_2">1_2.csv</option>
+              <option value="2_1">2_1.csv</option>
+              <option value="2_2">2_2.csv</option>
+              <option value="3_1">3_1.csv</option>
+              <option value="4_1">4_1.csv</option>
+              <option value="4_2">4_2.csv</option>
+              <option value="5_1">5_1.csv</option>
+              <option value="5_2">5_2.csv</option>
+            </select>
+          </form>
+          <svg id="svg" width="960" height="500"></svg>
+          <br><br><br>
+          <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="switch-temp-hum">
+              <label class="form-check-label" for="switch-temp-hum">Change the visualization type from Temperature to Humidity</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="x-encoding" value="distribution" id="x-dist" checked>
+            <label class="form-check-label" for="x-dist">Distribution of the Frequency</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="x-encoding" value="origin" id="x-origin">
+            <label class="form-check-label" for="x-origin">Distribution of the Origin data</label>
+          </div>
+          <svg id="barSvg"></svg>
+        </div>
+
+
+      </div>
+
+      <hr style="margin-top: 2%; margin-bottom: 2%">
+      <div class="container_license">
+        <div class="container_license_header"><b id="focused">License</b></div>
+        <div class="container_license_contents">
+          IMTL, Hippo T&C
+        </div>
+      </div>
+
+    </div>
+
+    <hr>
+    <footer>
+      <b>Contact me at <span class="mail">esinfam99@g.skku.edu</span></b>
+    </footer>
+
+  </body>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script>
+
+  let svg = d3.select("#svg"),
+      margin = {top: 20, right: 20, bottom: 110, left: 40},
+      margin2 = {top: 430, right: 20, bottom: 30, left: 40},
+      width = +svg.attr("width") - margin.left - margin.right,
+      height = +svg.attr("height") - margin.top - margin.bottom,
+      height2 = +svg.attr("height") - margin2.top - margin2.bottom;
+
+  let svgbar = d3.select("#barSvg")
+        .attr("width", "70%")
+        .attr("height", 440)
+      .append("g")
+        .attr("transform", "translate(60,30)");
+
+  let checked = d3.select("input[type=radio][name=x-encoding]:checked").property("value");
+  let changeType = d3.select("#switch-temp-hum").property("checked");
+
+  let buttons = d3.selectAll("input[type=radio]");
+  buttons.on("change", function(d) {
+    checked = d3.select("input[type=radio][name=x-encoding]:checked").property("value");
+    changeType = d3.select("#switch-temp-hum").property("checked");
+    updateBarchart(checked, changeType);
+  });
+
+  let buttons2 = d3.select("#switch-temp-hum");
+  buttons2.on("change", function(d) {
+    checked = d3.select("input[type=radio][name=x-encoding]:checked").property("value");
+    changeType = d3.select("#switch-temp-hum").property("checked");
+    // console.log(checked, changeType);
+    updateBarchart(checked, changeType);
+  })
+
+  let x = d3.scaleLinear().range([0, width]);
+  let x2 = d3.scaleLinear().range([0, width]);
+  let y = d3.scaleLinear().range([height, 0]);
+  let y2 = d3.scaleLinear().range([height2, 0]);
+
+  let xAxis = d3.axisBottom(x),
+      xAxis2 = d3.axisBottom(x2),
+      yAxis = d3.axisLeft(y);
+
+  let brush = d3.brushX()
+      .extent([[0, 0], [width, height2]])
+      .on("brush end", brushed);
+
+  let zoom = d3.zoom()
+      .scaleExtent([1, Infinity])
+      .translateExtent([[0, 0], [width, height]])
+      .extent([[0, 0], [width, height]])
+      .on("zoom", zoomed);
+
+  let line = d3.line()
+      .x(function(d) { return x(d.Time); })
+      .y(function(d) { return y(d.S1); });
+  let line2 = d3.line()
+      .x(function(d) { return x2(d.Time); })
+      .y(function(d) { return y2(d.S1); });
+
+  let line_2 = d3.line()
+      .x(function(d) { return x(d.Time); })
+      .y(function(d) { return y(d.S2); })
+  let line2_2 = d3.line()
+      .x(function(d) { return x2(d.Time); })
+      .y(function(d) { return y2(d.S2); })
+
+  let line_3 = d3.line()
+      .x(function(d) { return x(d.Time); })
+      .y(function(d) { return y(d.S3); })
+  let line3_2 = d3.line()
+      .x(function(d) { return x2(d.Time); })
+      .y(function(d) { return y2(d.S3); })
+
+  let line_4 = d3.line()
+      .x(function(d) { return x(d.Time); })
+      .y(function(d) { return y(d.S4); })
+  let line4_2 = d3.line()
+      .x(function(d) { return x2(d.Time); })
+      .y(function(d) { return y2(d.S4); })
+
+  let line_5 = d3.line()
+      .x(function(d) { return x(d.Time); })
+      .y(function(d) { return y(d.S5); });
+  let line5_2 = d3.line()
+      .x(function(d) { return x2(d.Time); })
+      .y(function(d) { return y2(d.S5); });
+
+  let line_6 = d3.line()
+      .x(function(d) { return x(d.Time); })
+      .y(function(d) { return y(d.S6); })
+  let line6_2 = d3.line()
+      .x(function(d) { return x2(d.Time); })
+      .y(function(d) { return y2(d.S6); })
+
+  let line_7 = d3.line()
+      .x(function(d) { return x(d.Time); })
+      .y(function(d) { return y(d.S7); })
+  let line7_2 = d3.line()
+      .x(function(d) { return x2(d.Time); })
+      .y(function(d) { return y2(d.S7); })
+
+  let line_8 = d3.line()
+      .x(function(d) { return x(d.Time); })
+      .y(function(d) { return y(d.S8); })
+  let line8_2 = d3.line()
+      .x(function(d) { return x2(d.Time); })
+      .y(function(d) { return y2(d.S8); })
+
+  let clip = svg.append("defs").append("svg:clipPath")
+      .attr("id", "clip")
+      .append("svg:rect")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("x", 0)
+      .attr("y", 0);
+
+
+  let Line_chart = svg.append("g")
+      .attr("class", "focus")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .attr("clip-path", "url(#clip)");
+
+  let focus = svg.append("g") //x axis y axis
+      .attr("class", "focus")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  let context = svg.append("g") // minimized map axis
+      .attr("class", "context")
+      .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+  let fileName = "https://raw.githubusercontent.com/J-H99/infovis/main/1/1_final.csv";
+  let originData, freqData;
+  d3.select("#csvFile").on("change", function(d) {
+    fileName = d3.select("#csvFile").node().value;
+    fileDir = "https://raw.githubusercontent.com/J-H99/infovis/main/" + fileName[0] + "/" + fileName[2] + "_final.csv";
+
+    d3.csv(fileDir, type, function (error, data) {
+      if (error) console.log(error, data);
+
+      d3.select(".focus .line").datum(data).attr("d", line);
+      d3.select(".focus .line2").datum(data).attr("d", line_2);
+      d3.select(".focus .line3").datum(data).attr("d", line_3);
+      d3.select(".focus .line4").datum(data).attr("d", line_4);
+      d3.select(".focus .line5").datum(data).attr("d", line_5);
+      d3.select(".focus .line6").datum(data).attr("d", line_6);
+      d3.select(".focus .line7").datum(data).attr("d", line_7);
+      d3.select(".focus .line8").datum(data).attr("d", line_8);
+
+      originData = normalize(data);
+      freqData = makeDataset(data, "Temperature");
+      if (changeType == true) {
+        freqData = makeDataset(data, "Humidity");
+      }
+
+
+      d3.selectAll(".barInfo").remove();
+      let xbar = d3.scaleBand()
+        .range([0, 960])
+        .domain(freqData.map(function(d) { return d.S9; }))
+        .padding(0.2);
+      svgbar.append("g")
+        .attr("class", "barInfo")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(xbar))
+        .selectAll("text")
+          .attr("transform", "translate(-10, 0)rotate(-45)")
+          .style("text-anchor", "end")
+
+      let ybar = d3.scaleLinear()
+        .domain([0, 80])
+        .range([height, 0]);
+      svgbar.append("g")
+        .attr("class", "barInfo")
+        .call(d3.axisLeft(ybar));
+
+      svgbar.selectAll("mybar")
+        .data(freqData)
+        .enter()
+        .append("rect")
+          .attr("class", "barInfo")
+          .attr("x", function(d) { return xbar(d.S9); })
+          .attr("y", function(d) { return ybar(d.Freq); })
+          .attr("width", xbar.bandwidth())
+          .attr("height", function(d) { return height - ybar(d.Freq); })
+          .attr("fill", "#aaf7");
+
+      checked = d3.select("input[type=radio][name=x-encoding]:checked").property("value");
+      changeType = d3.select("#switch-temp-hum").property("checked");
+      updateBarchart(checked, changeType);
+    })
+  });
+
+  d3.csv(fileName, type, function (error, data) {
+    if (error) console.log(error, data);
+    originData = normalize(data);
+    freqData = makeDataset(data, "Temperature");
+    if (changeType == true) {
+      freqData = makeDataset(data, "Humidity");
+    }
+
+    //line Chart For pressure Data
+    x.domain(d3.extent(data, function(d) { return d.Time; }));
+    y.domain([0, 8192]);
+    x2.domain(x.domain());
+    y2.domain(y.domain());
+
+    focus.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    focus.append("g")
+        .attr("class", "axis axis--y")
+        .call(yAxis);
+
+    Line_chart.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("fill", "None")
+        .attr("stroke", "steelblue")
+        .attr("d", line);
+    Line_chart.append("path")
+        .datum(data)
+        .attr("class", "line2")
+        .attr("fill", "None")
+        .attr("stroke", "Grey")
+        .attr("d", line_2);
+    Line_chart.append("path")
+        .datum(data)
+        .attr("class", "line3")
+        .attr("fill", "None")
+        .attr("stroke", "green")
+        .attr("d", line_3);
+    Line_chart.append("path")
+      .datum(data)
+      .attr("class", "line4")
+      .attr("fill", "None")
+      .attr("stroke", "#8B0000")
+      .attr("d", line_4);
+    Line_chart.append("path")
+      .datum(data)
+      .attr("class", "line5")
+      .attr("fill", "None")
+      .attr("stroke", "#483D8B")
+      .attr("d", line_5);
+    Line_chart.append("path")
+      .datum(data)
+      .attr("class", "line6")
+      .attr("fill", "None")
+      .attr("stroke", "#8B4513")
+      .attr("d", line_6);
+    Line_chart.append("path")
+      .datum(data)
+      .attr("class", "line7")
+      .attr("fill", "None")
+      .attr("stroke", "#FF69B4")
+      .attr("d", line_7);
+    Line_chart.append("path")
+      .datum(data)
+      .attr("class", "line8")
+      .attr("fill", "None")
+      .attr("stroke", "#FFA500")
+      .attr("d", line_8);
+
+    context.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("fill", "None")
+        .attr("stroke", "steelblue")
+        .attr("d", line2);
+    context.append("path")
+        .datum(data)
+        .attr("class", "line2")
+        .attr("stroke", "Grey")
+        .attr("fill", "None")
+        .attr("d", line2_2)
+    context.append("path")
+        .datum(data)
+        .attr("class", "line3")
+        .attr("stroke", "green")
+        .attr("fill", "None")
+        .attr("d", line3_2)
+    context.append("path")
+        .datum(data)
+        .attr("class", "line4")
+        .attr("stroke", "#8B0000")
+        .attr("fill", "None")
+        .attr("d", line4_2)
+    context.append("path")
+        .datum(data)
+        .attr("class", "line5")
+        .attr("stroke", "#483D8B")
+        .attr("fill", "None")
+        .attr("d", line5_2)
+    context.append("path")
+        .datum(data)
+        .attr("class", "line6")
+        .attr("stroke", "#8B4513")
+        .attr("fill", "None")
+        .attr("d", line6_2)
+    context.append("path")
+        .datum(data)
+        .attr("class", "line7")
+        .attr("stroke", "#FF69B4")
+        .attr("fill", "None")
+        .attr("d", line7_2)
+    context.append("path")
+        .datum(data)
+        .attr("class", "line8")
+        .attr("stroke", "#FFA500")
+        .attr("fill", "None")
+        .attr("d", line8_2)
+
+
+    context.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height2 + ")")
+        .call(xAxis2);
+
+    context.append("g")
+        .attr("class", "brush")
+        .call(brush)
+        .call(brush.move, x.range());
+
+    svg.append("rect")
+        .attr("class", "zoom")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .call(zoom);
+
+    // Bar chart for Temperature & Humidity Data
+    let xbar = d3.scaleBand()
+      .range([0, 960])
+      .domain(freqData.map(function(d) { return d.S9; }))
+      .padding(0.2);
+    svgbar.append("g")
+      .attr("class", "barInfo")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(xbar))
+      .selectAll("text")
+        .attr("transform", "translate(-10, 0)rotate(-45)")
+        .style("text-anchor", "end")
+
+    let ybar = d3.scaleLinear()
+      .domain([0, 40])
+      .range([height, 0]);
+    svgbar.append("g")
+      .attr("class", "barInfo")
+      .call(d3.axisLeft(ybar));
+
+    svgbar.selectAll("mybar")
+      .data(freqData)
+      .enter()
+      .append("rect")
+        .attr("class", "barInfo")
+        .attr("x", function(d) { return xbar(d.S9); })
+        .attr("y", function(d) { return ybar(d.Freq); })
+        .attr("width", xbar.bandwidth())
+        .attr("height", function(d) { return height - ybar(d.Freq); })
+        .attr("fill", "#aaf7");
+  });
+
+  function brushed() {
+    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
+
+    let s = d3.event.selection || x2.range();
+
+    x.domain(s.map(x2.invert, x2));
+
+    Line_chart.select(".line").attr("d", line);
+    Line_chart.select(".line2").attr("d", line_2);
+    Line_chart.select(".line3").attr("d", line_3);
+    Line_chart.select(".line4").attr("d", line_4);
+    Line_chart.select(".line5").attr("d", line_5);
+    Line_chart.select(".line6").attr("d", line_6);
+    Line_chart.select(".line7").attr("d", line_7);
+    Line_chart.select(".line8").attr("d", line_8);
+
+    focus.select(".axis--x").call(xAxis);
+    svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
+        .scale(width / (s[1] - s[0]))
+        .translate(-s[0], 0));
+  }
+
+  function zoomed() {
+    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
+
+    let t = d3.event.transform;
+
+    x.domain(t.rescaleX(x2).domain());
+
+    Line_chart.select(".line").attr("d", line);
+    Line_chart.select(".line2").attr("d", line_2);
+    Line_chart.select(".line3").attr("d", line_3);
+    Line_chart.select(".line4").attr("d", line_4);
+    Line_chart.select(".line5").attr("d", line_5);
+    Line_chart.select(".line6").attr("d", line_6);
+    Line_chart.select(".line7").attr("d", line_7);
+    Line_chart.select(".line8").attr("d", line_8);
+
+    focus.selectAll(".axis--x").call(xAxis);
+    context.selectAll(".brush").call(brush.move, x.range().map(t.invertX, t));
+  }
+
+  function type(d) {
+    d.S1 = +d.S1;
+    d.S2 = +d.S2;
+    return d;
+  }
+
+  function normalize(data) {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].Type == "Temperature") {
+        data[i].S9 = Math.floor(data[i].S9 / 100);
+      }
+
+      if (data[i].Type == "Humidity") {
+        data[i].S10 = Math.floor(data[i].S10 / 100);
+      }
+    }
+    return data;
+  }
+
+  function makeDataset(data, dataType) {
+    let newData=[];
+
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].Type == dataType) {
+        let filteredData = {};
+        filteredData.Time = data[i].Time;
+
+        if (dataType == "Temperature") {
+          filteredData.S9 = data[i].S9;
+        }
+
+        else if (dataType == "Humidity") {
+          filteredData.S10 = data[i].S10;
+        }
+
+        newData.push(filteredData);
+      }
+    }
+
+    return findDistribution(newData, dataType);
+  }
+
+  function findDistribution(data, dataType) {
+    let newData = []; // x-axis : temperature value, y-axis : frequency
+
+    for (let i = 0; i < data.length; i++) {
+      let existed = false;
+      for (let j = 0; j < newData.length; j++) {
+
+        if (dataType == "Temperature") {
+          if (data[i].S9 == newData[j].S9) {
+            newData[j].Freq++;
+            existed = true;
+          }
+        }
+
+        else if (dataType == "Humidity") {
+          if (data[i].S10 == newData[j].S10) {
+            newData[j].Freq++;
+            existed = true;
+          }
+        }
+      }
+
+      if (!existed) {
+        if (dataType == "Temperature") {
+          newData.push({"S9" : data[i].S9, "Freq": 1});
+        }
+
+        else if (dataType == "Humidity") {
+          newData.push({"S10" : data[i].S10, "Freq": 1});
+        }
+      }
+    }
+
+    if (dataType == "Temperature") {
+      newData.sort(function(a,b) { return (a.S9 > b.S9) ? 1 : ((b.S9 > a.S9) ? -1 : 0); });
+    }
+
+    else if (dataType == "Humidity") {
+      newData.sort(function(a,b) { return (a.S10 > b.S10) ? 1 : ((b.S10 > a.S10) ? -1 : 0); });
+    }
+
+    return newData;
+  }
+
+  function updateBarchart(checked, changeType) {
+    //checked > frequency or origin data
+    if (changeType == true) {
+      // console.log("originData", originData);
+      originData_ = findOriginData(originData, "Humidity");
+      freqData = makeDataset(originData, "Humidity");
+    }
+
+    else {
+      originData_ = findOriginData(originData, "Temperature");
+      freqData = makeDataset(originData, "Temperature");
+    }
+
+    if (checked == "origin") {
+      d3.selectAll(".barInfo").remove();
+
+      let xbar = d3.scaleBand()
+        .range([0, 960])
+        .domain(originData_.map(function(d) { return d.Time / 1000; }))
+        .padding(0.2);
+      svgbar.append("g")
+        .attr("class", "barInfo")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(xbar))
+        .selectAll("text")
+          .attr("transform", "translate(-10, 0)rotate(-45)")
+          .style("text-anchor", "end")
+
+      let ybar = d3.scaleLinear()
+        .domain([0, d3.max(originData_, d => d.value)])
+        .range([height, 0]);
+      svgbar.append("g")
+        .attr("class", "barInfo")
+        .call(d3.axisLeft(ybar));
+
+      svgbar.selectAll("mybar")
+        .data(originData_)
+        .enter()
+        .append("rect")
+          .attr("class", "barInfo")
+          .attr("x", function(d) { return xbar(d.Time / 1000); })
+          .attr("y", function(d) { return ybar(d.value); })
+          .attr("width", xbar.bandwidth())
+          .attr("height", function(d) { return height - ybar(d.value); })
+          .attr("fill", "#aaf7");
+    }
+
+    else if (checked == "distribution") {
+      d3.selectAll(".barInfo").remove();
+
+      let xbar = d3.scaleBand()
+        .range([0, 960])
+        .domain(freqData.map(function(d) { return d.S9; }))
+        .padding(0.2);
+      if (changeType == true) {
+        xbar = d3.scaleBand()
+          .range([0, 960])
+          .domain(freqData.map(function(d) { return d.S10; }))
+          .padding(0.2);
+      }
+
+      svgbar.append("g")
+        .attr("class", "barInfo")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(xbar))
+        .selectAll("text")
+          .attr("transform", "translate(-10, 0)rotate(-45)")
+          .style("text-anchor", "end")
+
+      let ybar = d3.scaleLinear()
+        .domain([0, d3.max(freqData, d => d.Freq)])
+        .range([height, 0]);
+      svgbar.append("g")
+        .attr("class", "barInfo")
+        .call(d3.axisLeft(ybar));
+
+      if (changeType == true) {
+        svgbar.selectAll("mybar")
+          .data(freqData)
+          .enter()
+          .append("rect")
+            .attr("class", "barInfo")
+            .attr("x", function(d) { return xbar(d.S10); })
+            .attr("y", function(d) { return ybar(d.Freq); })
+            .attr("width", xbar.bandwidth())
+            .attr("height", function(d) { return height - ybar(d.Freq); })
+            .attr("fill", "#aaf7");
+      }
+
+      else {
+        svgbar.selectAll("mybar")
+          .data(freqData)
+          .enter()
+          .append("rect")
+            .attr("class", "barInfo")
+            .attr("x", function(d) { return xbar(d.S9); })
+            .attr("y", function(d) { return ybar(d.Freq); })
+            .attr("width", xbar.bandwidth())
+            .attr("height", function(d) { return height - ybar(d.Freq); })
+            .attr("fill", "#aaf7");
+      }
+    }
+  }
+
+  function findOriginData(originData, dataType) {
+    onlyData = [];
+    for (let i = 0; i < originData.length; i++) {
+      if (originData[i].Type == dataType) {
+        newData = {};
+        newData.Time = originData[i].Time;
+
+        if (dataType == "Temperature") {
+          newData.value = originData[i].S9;
+        }
+
+        else if (dataType == "Humidity") {
+          newData.value = originData[i].S10;
+        }
+
+        onlyData.push(newData);
+      }
+    }
+
+    return onlyData;
+  }
+  </script>
+
+</html>
