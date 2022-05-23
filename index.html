@@ -43,7 +43,7 @@
         <div class="container_implementation_header"><b id="focused">Impelementation</b> using d3.js</div>
         <div class="container_implementation_contents">
           Using the D3.js library, visualize the distribution of pressure data and temperature & humidity data<br><br>
-          <!-- <form>
+          <form>
             <label for="csvFile">To analyze : </label>
             <select id="csvFile" name="csvFile">
               <option value="1_1" selected>1_1.csv</option>
@@ -56,7 +56,7 @@
               <option value="5_1">5_1.csv</option>
               <option value="5_2">5_2.csv</option>
             </select>
-          </form> -->
+          </form>
           <svg id="svg" width="960" height="500"></svg>
           <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" id="switch-temp-hum">
@@ -71,7 +71,6 @@
             <label class="form-check-label" for="x-origin">Distribution of the Origin data</label>
           </div>
           <svg id="barSvg"></svg>
-          <br>
         </div>
 
 
@@ -108,9 +107,6 @@
         .attr("height", 440)
       .append("g")
         .attr("transform", "translate(60,30)");
-
-  // let table = d3.select("#data-table");
-  // let rows;
 
   let checked = d3.select("input[type=radio][name=x-encoding]:checked").property("value");
   let changeType = d3.select("#switch-temp-hum").property("checked");
@@ -193,125 +189,72 @@
   let focus = svg.append("g") //x axis y axis
       .attr("class", "focus")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  let legend = svg.append("g");
-  legend.append("circle").attr("cx", 20).attr("cy", 5).attr("r", 5).style("fill", "steelblue")
-  legend.append("text").attr("x", 30).attr("y", 6).text("S1").style("font-size", "14px").attr("alignment-baseline", "middle");
-
-  legend.append("circle").attr("cx", 60).attr("cy", 5).attr("r", 5).style("fill", "grey")
-  legend.append("text").attr("x", 70).attr("y", 6).text("S2").style("font-size", "14px").attr("alignment-baseline", "middle");
-
-  legend.append("circle").attr("cx", 100).attr("cy", 5).attr("r", 5).style("fill", "green")
-  legend.append("text").attr("x", 110).attr("y", 6).text("S3").style("font-size", "14px").attr("alignment-baseline", "middle");
-
-  legend.append("circle").attr("cx", 140).attr("cy", 5).attr("r", 5).style("fill", "#8b0000")
-  legend.append("text").attr("x", 150).attr("y", 6).text("S4").style("font-size", "14px").attr("alignment-baseline", "middle");
-
-  legend.append("circle").attr("cx", 180).attr("cy", 5).attr("r", 5).style("fill", "#483d8b")
-  legend.append("text").attr("x", 190).attr("y", 6).text("S5").style("font-size", "14px").attr("alignment-baseline", "middle");
-
-  legend.append("circle").attr("cx", 220).attr("cy", 5).attr("r", 5).style("fill", "8b4513")
-  legend.append("text").attr("x", 230).attr("y", 6).text("S6").style("font-size", "14px").attr("alignment-baseline", "middle");
-
-  legend.append("circle").attr("cx", 260).attr("cy", 5).attr("r", 5).style("fill", "#ff69b4")
-  legend.append("text").attr("x", 270).attr("y", 6).text("S7").style("font-size", "14px").attr("alignment-baseline", "middle");
-
-  legend.append("circle").attr("cx", 300).attr("cy", 5).attr("r", 5).style("fill", "#ffa500")
-  legend.append("text").attr("x", 310).attr("y", 6).text("S8").style("font-size", "14px").attr("alignment-baseline", "middle");
-
-  let table = d3.select(".container_implementation")
-    .append("table")
-    .append("tr")
-    .attr("class", "tr_head");
+  //
+  // let context = svg.append("g") // minimized map axis
+  //     .attr("class", "context")
+  //     .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
   let fileName = "https://raw.githubusercontent.com/J-H99/infovis/main/1/1_final.csv";
   let originData, freqData;
-  // d3.select("#csvFile").on("change", function(d) {
-  //   fileName = d3.select("#csvFile").node().value;
-  //   fileDir = "https://raw.githubusercontent.com/J-H99/infovis/main/" + fileName[0] + "/" + fileName[2] + "_final.csv";
-  //
-  //   d3.csv(fileDir, type, function (error, data) {
-  //     if (error) console.log(error, data);
-  //
-  //     d3.select(".focus .line").datum(data).attr("d", line);
-  //     d3.select(".focus .line2").datum(data).attr("d", line_2);
-  //     d3.select(".focus .line3").datum(data).attr("d", line_3);
-  //     d3.select(".focus .line4").datum(data).attr("d", line_4);
-  //     d3.select(".focus .line5").datum(data).attr("d", line_5);
-  //     d3.select(".focus .line6").datum(data).attr("d", line_6);
-  //     d3.select(".focus .line7").datum(data).attr("d", line_7);
-  //     d3.select(".focus .line8").datum(data).attr("d", line_8);
-  //
-  //     originData = normalize(data);
-  //     freqData = makeDataset(data, "Temperature");
-  //     if (changeType == true) {
-  //       freqData = makeDataset(data, "Humidity");
-  //     }
-  //
-  //
-  //     d3.selectAll(".barInfo").remove();
-  //     let xbar = d3.scaleBand()
-  //       .range([0, 960])
-  //       .domain(freqData.map(function(d) { return d.S9; }))
-  //       .padding(0.2);
-  //     svgbar.append("g")
-  //       .attr("class", "barInfo")
-  //       .attr("transform", "translate(0," + height + ")")
-  //       .call(d3.axisBottom(xbar))
-  //       .selectAll("text")
-  //         .attr("transform", "translate(-10, 0)rotate(-45)")
-  //         .style("text-anchor", "end")
-  //
-  //     let ybar = d3.scaleLinear()
-  //       .domain([0, 80])
-  //       .range([height, 0]);
-  //     svgbar.append("g")
-  //       .attr("class", "barInfo")
-  //       .call(d3.axisLeft(ybar));
-  //
-  //     svgbar.selectAll("mybar")
-  //       .data(freqData)
-  //       .enter()
-  //       .append("rect")
-  //         .attr("class", "barInfo")
-  //         .attr("x", function(d) { return xbar(d.S9); })
-  //         .attr("y", function(d) { return ybar(d.Freq); })
-  //         .attr("width", xbar.bandwidth())
-  //         .attr("height", function(d) { return height - ybar(d.Freq); })
-  //         .attr("fill", "#aaf7");
-  //
-  //     checked = d3.select("input[type=radio][name=x-encoding]:checked").property("value");
-  //     changeType = d3.select("#switch-temp-hum").property("checked");
-  //     updateBarchart(checked, changeType);
-  //
-  //     d3.select("table").remove();
-  //
-  //     table = d3.select(".container_implementation")
-  //       .append("table")
-  //       .append("tr")
-  //       .attr("class", "tr_head");
-  //
-  //     d3.select("table").style("width", "70%")
-  //         .style("margin-left", "15%")
-  //         .style("margin-right", "15%");
-  //     table.selectAll("td")
-  //       .data(d3.keys(data[0]))
-  //       .enter().append("td")
-  //       .text(function(d) { return d;})
-  //       .style("border", "1px grey solid")
-  //       .style("font-size", "18px");
-  //
-  //     d3.select("table").selectAll("tr")
-  //         .data(data)
-  //         .enter().append("tr")
-  //         .attr("class", "tr_body")
-  //         .selectAll("td")
-  //           .data(function(d) { return d3.values(d); })
-  //           .enter().append("td")
-  //           .text(function(d, i) { return d;})
-  //           .style("border", "0.5px grey solid");
-  //   })
-  // });
+  d3.select("#csvFile").on("change", function(d) {
+    fileName = d3.select("#csvFile").node().value;
+    fileDir = "https://raw.githubusercontent.com/J-H99/infovis/main/" + fileName[0] + "/" + fileName[2] + "_final.csv";
+
+    d3.csv(fileDir, type, function (error, data) {
+      if (error) console.log(error, data);
+
+      d3.select(".focus .line").datum(data).attr("d", line);
+      d3.select(".focus .line2").datum(data).attr("d", line_2);
+      d3.select(".focus .line3").datum(data).attr("d", line_3);
+      d3.select(".focus .line4").datum(data).attr("d", line_4);
+      d3.select(".focus .line5").datum(data).attr("d", line_5);
+      d3.select(".focus .line6").datum(data).attr("d", line_6);
+      d3.select(".focus .line7").datum(data).attr("d", line_7);
+      d3.select(".focus .line8").datum(data).attr("d", line_8);
+
+      originData = normalize(data);
+      freqData = makeDataset(data, "Temperature");
+      if (changeType == true) {
+        freqData = makeDataset(data, "Humidity");
+      }
+
+
+      d3.selectAll(".barInfo").remove();
+      let xbar = d3.scaleBand()
+        .range([0, 960])
+        .domain(freqData.map(function(d) { return d.S9; }))
+        .padding(0.2);
+      svgbar.append("g")
+        .attr("class", "barInfo")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(xbar))
+        .selectAll("text")
+          .attr("transform", "translate(-10, 0)rotate(-45)")
+          .style("text-anchor", "end")
+
+      let ybar = d3.scaleLinear()
+        .domain([0, 80])
+        .range([height, 0]);
+      svgbar.append("g")
+        .attr("class", "barInfo")
+        .call(d3.axisLeft(ybar));
+
+      svgbar.selectAll("mybar")
+        .data(freqData)
+        .enter()
+        .append("rect")
+          .attr("class", "barInfo")
+          .attr("x", function(d) { return xbar(d.S9); })
+          .attr("y", function(d) { return ybar(d.Freq); })
+          .attr("width", xbar.bandwidth())
+          .attr("height", function(d) { return height - ybar(d.Freq); })
+          .attr("fill", "#aaf7");
+
+      checked = d3.select("input[type=radio][name=x-encoding]:checked").property("value");
+      changeType = d3.select("#switch-temp-hum").property("checked");
+      updateBarchart(checked, changeType);
+    })
+  });
 
   d3.csv(fileName, type, function (error, data) {
     if (error) console.log(error, data);
@@ -321,23 +264,6 @@
       freqData = makeDataset(data, "Humidity");
     }
 
-    // console.log(data)
-    table.selectAll("td")
-      .data(d3.keys(data[0]))
-      .enter().append("td")
-      .text(function(d) { return d;})
-      .style("border", "1px grey solid")
-      .style("font-size", "18px");
-
-    d3.select("table").selectAll("tr")
-        .data(data)
-        .enter().append("tr")
-        .attr("class", "tr_body")
-        .selectAll("td")
-          .data(function(d) { return d3.values(d); })
-          .enter().append("td")
-          .text(function(d, i) { return d;})
-          .style("border", "0.5px grey solid");
     //line Chart For pressure Data
     x.domain(d3.extent(data, function(d) { return d.Time; }));
     y.domain([0, 8192]);
