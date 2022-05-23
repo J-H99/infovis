@@ -129,16 +129,6 @@ body {
     pointer-events: all;
   }
 
-  #svg {
-    margin-left: 15% !important;
-    margin-right: 15% !important;
-  }
-
-  #barSvg {
-    margin-left: 15% !important;
-    margin-right: 15% !important;
-  }
-
   hr {
     width: 70%;
     margin-left: 15% !important;
