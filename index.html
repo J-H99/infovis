@@ -57,6 +57,7 @@
               <option value="5_2">5_2.csv</option>
             </select>
           </form>
+          <br>
           <svg id="svg" width="960" height="500"></svg>
           <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" id="switch-temp-hum">
@@ -194,6 +195,30 @@
   //     .attr("class", "context")
   //     .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
+  let legend = svg.append("g");
+  legend.append("circle").attr("cx", 20).attr("cy", 5).attr("r", 5).style("fill", "steelblue")
+  legend.append("text").attr("x", 30).attr("y", 6).text("S1").style("font-size", "14px").attr("alignment-baseline", "middle");
+
+  legend.append("circle").attr("cx", 60).attr("cy", 5).attr("r", 5).style("fill", "grey")
+  legend.append("text").attr("x", 70).attr("y", 6).text("S2").style("font-size", "14px").attr("alignment-baseline", "middle");
+
+  legend.append("circle").attr("cx", 100).attr("cy", 5).attr("r", 5).style("fill", "green")
+  legend.append("text").attr("x", 110).attr("y", 6).text("S3").style("font-size", "14px").attr("alignment-baseline", "middle");
+
+  legend.append("circle").attr("cx", 140).attr("cy", 5).attr("r", 5).style("fill", "#8b0000")
+  legend.append("text").attr("x", 150).attr("y", 6).text("S4").style("font-size", "14px").attr("alignment-baseline", "middle");
+
+  legend.append("circle").attr("cx", 180).attr("cy", 5).attr("r", 5).style("fill", "#483d8b")
+  legend.append("text").attr("x", 190).attr("y", 6).text("S5").style("font-size", "14px").attr("alignment-baseline", "middle");
+
+  legend.append("circle").attr("cx", 220).attr("cy", 5).attr("r", 5).style("fill", "8b4513")
+  legend.append("text").attr("x", 230).attr("y", 6).text("S6").style("font-size", "14px").attr("alignment-baseline", "middle");
+
+  legend.append("circle").attr("cx", 260).attr("cy", 5).attr("r", 5).style("fill", "#ff69b4")
+  legend.append("text").attr("x", 270).attr("y", 6).text("S7").style("font-size", "14px").attr("alignment-baseline", "middle");
+
+  legend.append("circle").attr("cx", 300).attr("cy", 5).attr("r", 5).style("fill", "#ffa500")
+  legend.append("text").attr("x", 310).attr("y", 6).text("S8").style("font-size", "14px").attr("alignment-baseline", "middle");
   let fileName = "https://raw.githubusercontent.com/J-H99/infovis/main/1/1_final.csv";
   let originData, freqData;
   d3.select("#csvFile").on("change", function(d) {
